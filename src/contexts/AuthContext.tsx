@@ -36,7 +36,7 @@ type  UserProps = {
          activity_level: number      
          training_frequency:number   
          level?:string
-        
+        isFinished:boolean
        }
 
 }

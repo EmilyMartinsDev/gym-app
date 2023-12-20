@@ -77,6 +77,7 @@ useEffect(()=>{
             activity_level: user?.info?.activity_level ?? "",
             training_frequency: user?.info?.training_frequency ?? "",
             level: user?.info?.level ?? "",
+            
         },
        // validationSchema: validationSchema,
         onSubmit: async(values) => {
@@ -93,6 +94,7 @@ useEffect(()=>{
                     activity_level: Number(values.activity_level),
                     training_frequency: Number(values.training_frequency),
                     level: values.level,
+                    isFinished:true,
                 }
             })
             toast.success('BEM VINDO')

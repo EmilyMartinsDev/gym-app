@@ -2,10 +2,7 @@ import GlobalCss from "./styles";
 import { Provider } from "react-redux";
 import Rotas from "./routes";
 import { BrowserRouter } from "react-router-dom";
-
-import {AuthProvider} from '../src/contexts/AuthContext'
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
-import { ToastContainer } from "react-toastify";
 import { store } from "./store";
 const theme = extendTheme({
   colors: {
@@ -44,10 +41,14 @@ function App() {
      
       <BrowserRouter>
       <ChakraProvider theme={theme}>
+ 
         <div className="App">
+     
           <GlobalCss />
+         
           <Rotas />
         </div>
+      
         </ChakraProvider>
       </BrowserRouter>
     

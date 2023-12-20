@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 const  SignInForm = ()=>{
     const {signin} = useContext(AuthContext)
     const navigate = useNavigate()
+    const {user} = useContext(AuthContext)
     const validationSchema = Yup.object({
         email: Yup.string().email("Email inválido").required("Email é obrigatório"),
         senha: Yup.string().required("Senha é obrigatória"),
@@ -31,6 +32,7 @@ const formik = useFormik({
         try{
             await signin(data);
             toast.success('logado com sucesso')
+            
             navigate('/dashboard')
 
         }catch(err){
