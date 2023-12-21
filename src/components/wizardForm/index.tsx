@@ -17,16 +17,49 @@ export default function WizardForm() {
     const dispatch = useDispatch();
     const { position, items } = useSelector((state: RootRedux) => state.wizard);
     const {user:userData} = useContext(AuthContext)
-    const muscleGroups = [
-        "Peito", "Costas", "Ombros", "Bíceps", "Tríceps", "Posterior", "Gluteo", "Quadríceps", "Abdômen",
-    ];
+   
     const [user, setUser] = useState(userData)
     enum Goal {
         GAIN_MASS = 'GAIN_MASS',
         LOSE_FAT= 'LOSE_FAT',
         MAINTENANCE='MAINTENANCE'
       }
-      
+      enum Phase {
+        BASE = 'BASE',
+        CHOQUE = 'CHOQUE',
+        DELOAD = 'DELOAD'
+       }
+       
+       enum Level {
+        BEGINNER= 'BEGINNER',
+        INTERMEDIATED = 'INTERMEDIATED',
+        ADVANCED= 'ADVANCED',
+        ATHLETE = 'MASTER'
+       }
+       
+       enum frequency {
+         ONE= 'ONE',
+         TWO = 'TWO',
+         THREE = 'THREE',
+         FOUR = 'FOUR',
+         FIVE = 'FIVE',
+         SIX = 'SIX',
+       }
+       
+       enum MuscleGroup {
+         PEITO= 'PEITO',
+         COSTAS= 'COSTAS',
+         OMBROS= 'OMBROS',
+         BICEPS= 'BICEPS',
+         TRICEPS='TRICEPS',
+         POSTERIOR='POSTERIOR',
+         GLUTEO='GLUTEO',
+         QUADRICEPS='QUADRICEPS',
+         ABDOMEN='ABDOMEN',
+       }
+       const muscleGroups = [
+        MuscleGroup.PEITO,  MuscleGroup.COSTAS,  MuscleGroup.OMBROS, MuscleGroup.BICEPS, MuscleGroup.TRICEPS,  MuscleGroup.POSTERIOR,  MuscleGroup.GLUTEO,  MuscleGroup.QUADRICEPS, MuscleGroup.ABDOMEN,
+    ];
     const navigate = useNavigate()
     const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
     const { isOpen, onToggle } = useDisclosure();
@@ -62,9 +95,8 @@ export default function WizardForm() {
     });
     */
    console.log(user)
-useEffect(()=>{
-    setUser(userData)
-}, [userData])
+
+
     const formik = useFormik({
         initialValues: {
             weight: user?.info?.weight ?? "",
@@ -73,36 +105,39 @@ useEffect(()=>{
             age: user?.info?.age ?? "",
             body_fat_percentage: user?.info?.body_fat_percentage ?? "",
             goal: user?.info?.goal ?? "",
-            muscle_group_target: user?.info?.muscle_group_target ?? "",
             activity_level: user?.info?.activity_level ?? "",
-            training_frequency: user?.info?.training_frequency ?? "",
-            level: user?.info?.level ?? "",
-            
+            level: user?.info?.level ?? Level.BEGINNER,
+     
         },
        // validationSchema: validationSchema,
         onSubmit: async(values) => {
-            await api.post('/wizard', {
-                data: {
-        
-                    weight: Number(values.weight),
-                    height: Number(values.height),
-                    gender: values.gender,
-                    age:  Number(values.age),
-                    body_fat_percentage:Number( values.body_fat_percentage),
-                    goal: values.goal,
-                    muscle_group_target: values.muscle_group_target,
-                    activity_level: Number(values.activity_level),
-                    training_frequency: Number(values.training_frequency),
-                    level: values.level,
-                    isFinished:true,
-                }
-            })
-            toast.success('BEM VINDO')
-            navigate('/dashboard')
+            try{
+                await api.post('/wizard', {
+                    data: {
+            
+                        weight: Number(values.weight),
+                        height: Number(values.height),
+                        gender: values.gender,
+                        age:  Number(values.age),
+                        body_fat_percentage:Number( values.body_fat_percentage),
+                        goal: values.goal,
+                        activity_level: Number(values.activity_level),
+                        level: values.level,
+                        isFinished:true,
+                
+                    }
+                })
+                toast.success('BEM VINDO')
+                navigate('/dashboard')
+            }catch(err){
+                console.log(err)
+            }   
             // Lógica para enviar os dados do formulário para o Redux ou qualquer outra ação necessária
         },
     });
-
+    useEffect(()=>{
+        console.log(formik.values)
+    }, [formik])
     return (
         <Box m={10}>
             <Center mb={10}>
@@ -261,38 +296,7 @@ useEffect(()=>{
                         </Box>
 
 
-                        <Box display="flex" flexDirection="column" alignItems="center" mt={5}>
-      <Box
-        display="flex"
-        alignItems="center"
-        mb={3}
-        onClick={onToggle}
-
-        cursor="pointer"
-      >
-        <FaDumbbell size={25} color="purple.400" />
-        <Text ml={3} fontWeight="bold" color="gray.600">
-          Grupo muscular objetivo:
-        </Text>
-        {isOpen ? <FaChevronUp style={{marginLeft: '16px'}}  /> : <FaChevronDown  style={{marginLeft: '16px'}}/>}
-      </Box>
-      <Collapse in={isOpen} animateOpacity>
-        <Stack spacing={2}>
-          {muscleGroups.map((group) => (
-            <Checkbox
-              key={group}
-              isChecked={selectedGroups.includes(group)}
-              onChange={() => handleCheckboxChange(group)}
-              rounded="md"
-            >
-              {group}
-            </Checkbox>
-          ))}
-        </Stack>
-      </Collapse>
-
-     
-    </Box>
+                        
 
                         <Center mt={10}>
                             <Flex alignItems="center">
@@ -311,7 +315,7 @@ useEffect(()=>{
                                     ml={5}
                                     rightIcon={<FaArrowRight />}
                                     onClick={() => dispatch(next())}
-                                    disabled={!formik.values.body_fat_percentage || !formik.values.goal || !formik.values.muscle_group_target}
+                                    disabled={!formik.values.body_fat_percentage || !formik.values.goal }
                                 >
                                     Próximo
                                 </Button>
@@ -351,38 +355,17 @@ useEffect(()=>{
 
                         <Box display="flex" flexDirection="column" alignItems="center" mt={5}>
                             <Box display="flex" alignItems="center" mb={3}>
-                                <FaRegChartBar size={25} color="purple.400" />
-                                <Text ml={3} fontWeight="bold" color="gray.600">
-                                    Frequência de treinamento semanal:
-                                </Text>
-                            </Box>
-                            <Select name="training_frequency" value={formik.values.training_frequency} onChange={formik.handleChange} rounded="md">
-                                <option value="">Selecione...</option>
-                                <option value="3">3 vezes por semana</option>
-                                <option value="4">4 vezes por semana</option>
-                                <option value="5">5 vezes por semana</option>
-                                <option value="6">6 vezes por semana</option>
-                            </Select>
-                            {formik.touched.training_frequency || formik.errors.training_frequency && (
-                                <Text color="red.500" mt={1} fontSize="sm">
-                                    {formik.errors.training_frequency}
-                                </Text>
-                            )}
-                        </Box>
-
-                        <Box display="flex" flexDirection="column" alignItems="center" mt={5}>
-                            <Box display="flex" alignItems="center" mb={3}>
                                 <FaHourglassEnd size={25} color="purple.400" />
                                 <Text ml={3} fontWeight="bold" color="gray.600">
-                                    Tempo médio de treinamento (meses):
+                                    Tempo médio de treinamento (initerruptos):
                                 </Text>
                             </Box>
                             <Select name="level" value={formik.values.level} onChange={formik.handleChange} rounded="md">
                                 <option value="">Selecione...</option>
-                                <option value="beginner">6 meses a 1 ano</option>
-                                <option value="intermediate">1 a 2 anos</option>
-                                <option value="advanced">2 a 4 anos</option>
-                                <option value="master">4+ anos</option>
+                                <option value={Level.BEGINNER}>Até 6 meses de treinamento</option>
+                                <option value={Level.INTERMEDIATED}>até 3 anos de treinamento</option>
+                                <option value={Level.ADVANCED}>+3 anos</option>
+                                <option value={Level.ATHLETE}>Atleta alto rendimento</option>
                             </Select>
                             {formik.touched.level || formik.errors.level && (
                                 <Text color="red.500" mt={1} fontSize="sm">
