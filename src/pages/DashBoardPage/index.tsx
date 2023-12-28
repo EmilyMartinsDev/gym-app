@@ -55,8 +55,8 @@ export default function DashBordage() {
           </Stack>
           {/* Botão de Ação Principal */}
           <Box textAlign="center">
-            <Button colorScheme="blue" size="lg">
-              Comece Agora
+            <Button colorScheme="blue" onClick={()=>navigate('/welcome')} size="lg">
+              Criar plano Individualizado
             </Button>
           </Box>
 

@@ -99,6 +99,7 @@ export default function WizardForm() {
 
     const formik = useFormik({
         initialValues: {
+            muscle_group_target:'',
             weight: user?.info?.weight ?? "",
             height: user?.info?.height ?? "",
             gender: user?.info?.gender ?? "",
@@ -107,7 +108,7 @@ export default function WizardForm() {
             goal: user?.info?.goal ?? "",
             activity_level: user?.info?.activity_level ?? "",
             level: user?.info?.level ?? Level.BEGINNER,
-     
+            training_frequency: ""
         },
        // validationSchema: validationSchema,
         onSubmit: async(values) => {
@@ -124,7 +125,8 @@ export default function WizardForm() {
                         activity_level: Number(values.activity_level),
                         level: values.level,
                         isFinished:true,
-                
+                        frequency: values.training_frequency,
+                        muscle_target: values.muscle_group_target
                     }
                 })
                 toast.success('BEM VINDO')
@@ -294,6 +296,57 @@ export default function WizardForm() {
                                 </Text>
                             )}
                         </Box>
+
+                        <Box display="flex" flexDirection="column" alignItems="center" mt={5}>
+    <Box display="flex" alignItems="center" mb={3}>
+        <FaDumbbell size={25} color="purple.400" />
+        <Text ml={3} fontWeight="bold" color="gray.600">
+            Grupo Muscular Alvo:
+        </Text>
+    </Box>
+    <Select
+        name="muscle_group_target"
+        value={formik.values.muscle_group_target}
+        onChange={formik.handleChange}
+        rounded="md"
+    >
+        <option value="" label="Selecione..." />
+        {muscleGroups.map((group) => (
+            <option key={group} value={group} label={group} />
+        ))}
+    </Select>
+    {formik.touched.muscle_group_target &&
+    formik.errors.muscle_group_target && (
+        <Text color="red.500" mt={1} fontSize="sm">
+            {formik.errors.muscle_group_target}
+        </Text>
+    )}
+</Box>
+<Box display="flex" flexDirection="column" alignItems="center" mt={5}>
+    <Box display="flex" alignItems="center" mb={3}>
+        <FaRegChartBar size={25} color="purple.400" />
+        <Text ml={3} fontWeight="bold" color="gray.600">
+            Frequência de Treinamento:
+        </Text>
+    </Box>
+    <Select
+        name="training_frequency"
+        value={formik.values.training_frequency}
+        onChange={formik.handleChange}
+        rounded="md"
+    >
+        <option value="" label="Selecione..." />
+        {Object.values(frequency).map((freq) => (
+            <option key={freq} value={freq} label={freq} />
+        ))}
+    </Select>
+    {formik.touched.training_frequency &&
+    formik.errors.training_frequency && (
+        <Text color="red.500" mt={1} fontSize="sm">
+            {formik.errors.training_frequency}
+        </Text>
+    )}
+</Box>
 
 
                         
