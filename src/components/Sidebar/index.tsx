@@ -17,10 +17,10 @@ import {
 
 import {
   FiScissors,
-  FiClipboard,
+  FiUsers,
   FiSettings,
   FiMenu,
-  FiHeart,
+  FiUser,
   FiCalendar,
   FiCoffee,
   FiDollarSign } from 'react-icons/fi'
@@ -35,9 +35,11 @@ interface LinkItemProps{
 }
 const LinkItems: Array<LinkItemProps> = [
     { name: 'Agenda', icon: FiCalendar, route: '/agenda' },
-    { name: 'Treinos', icon: FiHeart, route: '/workouts' },
-    { name: 'Dieta', icon: FiCoffee, route: '/diet' },
-    { name: 'Configurações', icon: FiSettings, route: '/settings' },
+    { name: 'Profissionais', icon: FiUsers, route: '/profissionais' },
+    { name: 'Cortes', icon: FiScissors, route: '/settings' },
+    { name: 'Minha Conta', icon: FiUser, route: '/me' },
+    { name: 'Configurações', icon: FiSettings, route: '/config' },
+   
   ];
 export function Sidebar({ children }: { children: ReactNode }){
 
@@ -91,8 +93,8 @@ const SidebarContent = ({onClose, ...rest}: SidebarProps) => {
       <Flex h="20" alignItems="center" justifyContent="space-between" mx="8">
         <Link href="/dashboard">
           <Flex cursor="pointer" userSelect="none" flexDirection="row">
-            <Text fontSize="xxx-large" fontFamily="fantasy"  color="white" letterSpacing={2} mr={1} fontWeight="bold">Sit</Text>
-            <Text fontSize="xxx-large" fontFamily="fantasy" fontWeight="bold" letterSpacing={2}  color="orange">FIT</Text>
+            <Text fontSize="xxx-large" fontFamily="fantasy"  color="white" letterSpacing={2} mr={1} fontWeight="bold">EASY</Text>
+            <Text fontSize="xxx-large" fontFamily="fantasy" fontWeight="bold" letterSpacing={2}  color="orange">CUT</Text>
           </Flex>
         </Link>
         <CloseButton display={{ base: 'flex', md: 'none'}} onClick={onClose} />

@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 
 
 const  SignInForm = ()=>{
-    const {signin} = useContext(AuthContext)
+    const {signIn} = useContext(AuthContext)
     const navigate = useNavigate()
     const {user} = useContext(AuthContext)
     const validationSchema = Yup.object({
@@ -26,11 +26,11 @@ const formik = useFormik({
     onSubmit: async (values) => {
         let data = {
             email: values.email,
-            password: values.senha
+            senha: values.senha
         }
 
         try{
-            await signin(data);
+            await signIn(data);
             toast.success('logado com sucesso')
             
             navigate('/dashboard')
@@ -46,7 +46,7 @@ const formik = useFormik({
   return (
     <Box maxWidth="400px" margin="0 auto" paddingTop="40px">
       <Heading as="h1" textAlign="center" marginBottom="20px" fontSize="3xl" color="primary.500">
-        SitFit
+       EASYCUT BARBER
       </Heading>
       <Box
         borderRadius="md"

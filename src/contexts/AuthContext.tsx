@@ -1,158 +1,129 @@
-import { createContext, ReactNode, useState, useEffect } from "react";
-import {destroyCookie} from 'nookies'
-import { api } from "../services/apiClient"
-import { setCookie, parseCookies } from "nookies";
+import { createContext, useState, ReactNode } from "react";
+import { destroyCookie, setCookie  } from 'nookies'
 
-import {toast } from 'react-toastify'
-import { Router, useNavigate } from "react-router-dom";
-type AuthContextData ={
-    user?: UserProps;
+import { api } from "../services/apiClient";
+import { redirect } from "react-router-dom";
+
+
+interface AuthContextData {
+    user: UserProps;
     isAuthenticated: boolean;
-    signin: (credentials: SignInProps)=> Promise<void>;
-    signOut: ()=> void;
-    signUp: (credentials: SignUpProps)=> Promise<void>
- }
-
-type  UserProps = {
-    id: string;
-    name: string;
-    email: string;
-    subscription?:any,
-    info?:{
-        userId:string
-         id    :string              
-         name  :string               
-       
-         weight     :number          
-         height   :number      
-         gender:'F' | 'M'      
-         age:number  
-       
-         body_fat_percentage   :number
-         goal :string                 
-         training_time      :number   
-         muscle_group_target :string 
-             
-         activity_level: number      
-         training_frequency:number   
-         level?:string
-        isFinished:boolean
-       }
-
+    signIn: (credentials: SignInProps) => Promise<void>;
+    signUp: (credentials: SignUpProps) => Promise<void>;
+    logoutUser: () => Promise<void>;
+  }
+interface UserProps {
+    id: string
+    nome: string
+    email: string
+    subscriptions?: SubscriptionProps | null
 }
 
-type SignInProps = {
-    email: string;
-    password: string;
+interface SubscriptionProps{
+    id: string
+    status: string
 }
 
 type AuthProviderProps = {
-    children: ReactNode;
+    children : ReactNode
+
 }
 
-type  SignUpProps = {
-    name: string;
+interface SignInProps {
     email: string;
-    password: string;
-}
+    senha: string;
+  }
+  
+  interface SignUpProps{
+    // id:string,
+    // usuarioId:string,
+    // usuario:{
+    //     name: string;
+    //     email: string;
+    //     senha: string;
+    //     acesso:string
+    // }
+        nome: string;
+        email: string;
+        senha: string;
+ 
+  }
+  
 
-
-
-export const AuthContext = createContext({} as AuthContextData);
-
+export const AuthContext = createContext({}as  AuthContextData)
 
 export function signOut(){
-    
     try{
-        destroyCookie(undefined, '@nextauth.token');
-        window.history.pushState({}, "", "/");
-    }catch{
-        console.log('erro ao deslogar')
+
+        destroyCookie(null, '@barberWeb', { path: "/" })
+        redirect('/login')
+
+    }catch(err){
+        console.log(err)
     }
 }
 
-
-export function AuthProvider({children}:AuthProviderProps){
-    
-
-
-    const [user, setUser] = useState<UserProps> ()
+export function AuthProvider({children}: AuthProviderProps){
+    const [user, setUser] = useState<UserProps>()
     const isAuthenticated = !!user
 
+    async function signIn ({email, senha}: SignInProps){
+       try{
+        const response = await api.post("/usuario", {
+            email, 
+            senha
+        })
 
-    useEffect(()=>{
-        const {"@nextauth.token": token} = parseCookies()
-        if(token){
-            api.get('/user/me').then(res=>{
-                const {email, name, id, info} = res.data
+        const {...data } = response.data
 
-                setUser({
-                    id, email, name, info
-                })
-            })
-            .catch(() =>{
-                signOut()
-            })
-        }
-    },[])
-
-
-
-
-
-
-   async function signin({email, password}: SignInProps){
-      try{
-        const response = await api.post('/user/session', {
-            email, password
-           
+        setCookie(null, '@barberWeb', data.token, {
+            maxAge: 60 * 60 * 24 * 30,
+            path: "/"
         });
 
-        const {id, name, token, info} = response.data
-
-        setCookie(undefined, '@nextauth.token', token, {
-
-            maxAge: 60 * 60 * 24 ,
-            path: '/' // todos os caminhos tem acesso ao cookie
-        } );
-
-
         setUser({
-            id, name, email
-        })
+          ...data
+        });
+    
+        api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
+
+        redirect("/dashboard")
         
-
-
-        api.defaults.headers['Authorization'] = `Bearer ${token}`
-     
-
-     
-
-      }catch{
-        toast.error('erro ao acessar')
-        console.log('erro ao acessar')
-      
-      }
+       }catch(err){
+        console.log("erro ao entrar",err)
+       }
+    
     }
-
-
-    async function signUp({name, email, password}: SignUpProps){
+ 
+       async function logoutUser(){
         try{
-            const response = await api.post('/user', {
-                name, email, password
-            });
-     
-
-        }catch(e){
-            toast.error('erro ao cadastrar')
-            console.log('erro ao cadastrar',e )
+          destroyCookie(null, '@barberWeb', { path: '/' })
+          redirect('/login')
+          setUser(null);
+        }catch(err){
+          console.log("ERRO AO SAIR", err)
         }
-    }
-
-
-    return(
-        <AuthContext.Provider value={{user, isAuthenticated, signin, signOut, signUp}}>
+      }
+    
+    
+    async function signUp({ nome, email, senha}: SignUpProps){
+        try{
+          const response = await api.post('/barbearia', {
+            nome,
+            email,
+            senha
+          })
+    
+          redirect('/login')
+    
+        }catch(err){
+          console.log(err);
+        }
+      }
+      
+    return (
+        <AuthContext.Provider value={{ user, isAuthenticated, signIn, signUp, logoutUser  }}>
             {children}
         </AuthContext.Provider>
     )
-}
+    }
